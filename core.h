@@ -514,6 +514,12 @@ int mwl_init_hw(struct ieee80211_hw *hw, const char *fw_name,
 
 void mwl_deinit_hw(struct ieee80211_hw *hw);
 
+/* If true the driver will attempt to accept frames from MAC addresses not
+ * sharing the default mask with the primary address. Support depends on
+ * firmware capabilities.
+ */
+extern bool mwl_allow_any_mac;
+
 /* Defined in mac80211.c. */
 extern const struct ieee80211_ops mwl_mac80211_ops;
 
