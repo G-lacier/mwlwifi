@@ -331,9 +331,10 @@ struct mwl_priv {
 	u16 dfs_min_num_radar;
 	u16 dfs_min_pri_count;
 
-	u8 bf_type;
-	bool mu_mimo_enabled;
-	bool pmf_enabled;
+       u8 bf_type;
+       bool mu_mimo_enabled;
+       bool pmf_enabled;
+       bool mesh_enabled;
 
 	struct thermal_cooling_device *cdev;
 	u32 throttle_state;
@@ -512,6 +513,12 @@ int mwl_init_hw(struct ieee80211_hw *hw, const char *fw_name,
 		const char *cal_name, const char *txpwrlmt_name);
 
 void mwl_deinit_hw(struct ieee80211_hw *hw);
+
+/* If true the driver will attempt to accept frames from MAC addresses not
+ * sharing the default mask with the primary address. Support depends on
+ * firmware capabilities.
+ */
+extern bool mwl_allow_any_mac;
 
 /* Defined in mac80211.c. */
 extern const struct ieee80211_ops mwl_mac80211_ops;

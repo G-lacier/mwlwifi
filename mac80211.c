@@ -21,6 +21,7 @@
 #include "core.h"
 #include "utils.h"
 #include "pmf.h"
+#include "mesh.h"
 #include "hif/fwcmd.h"
 #include "hif/hif-ops.h"
 
@@ -232,10 +233,11 @@ static int mwl_mac80211_add_interface(struct ieee80211_hw *hw,
 			mwl_fwcmd_bss_start(hw, vif, false);
 		}
 		break;
-	case NL80211_IFTYPE_MESH_POINT:
-		ether_addr_copy(mwl_vif->bssid, vif->addr);
-		mwl_fwcmd_set_new_stn_add_self(hw, vif);
-		break;
+       case NL80211_IFTYPE_MESH_POINT:
+               ether_addr_copy(mwl_vif->bssid, vif->addr);
+               mwl_fwcmd_set_new_stn_add_self(hw, vif);
+               mwl_mesh_enable(hw);
+               break;
 	case NL80211_IFTYPE_STATION:
 		ether_addr_copy(mwl_vif->sta_mac, vif->addr);
 		mwl_fwcmd_bss_start(hw, vif, true);
@@ -276,10 +278,12 @@ static void mwl_mac80211_remove_interface(struct ieee80211_hw *hw,
 	struct mwl_priv *priv = hw->priv;
 
 	switch (vif->type) {
-	case NL80211_IFTYPE_AP:
-	case NL80211_IFTYPE_MESH_POINT:
-		mwl_fwcmd_set_new_stn_del(hw, vif, vif->addr);
-		break;
+       case NL80211_IFTYPE_AP:
+       case NL80211_IFTYPE_MESH_POINT:
+               mwl_fwcmd_set_new_stn_del(hw, vif, vif->addr);
+               if (vif->type == NL80211_IFTYPE_MESH_POINT)
+                       mwl_mesh_disable(hw);
+               break;
 	case NL80211_IFTYPE_STATION:
 		mwl_fwcmd_remove_mac_addr(hw, vif, vif->addr);
 		break;
@@ -488,14 +492,16 @@ static void mwl_mac80211_bss_info_changed(struct ieee80211_hw *hw,
 }
 
 static void mwl_mac80211_configure_filter(struct ieee80211_hw *hw,
-					  unsigned int changed_flags,
-					  unsigned int *total_flags,
-					  u64 multicast)
+                                          unsigned int changed_flags,
+                                          unsigned int *total_flags,
+                                          u64 multicast)
 {
-	/* AP firmware doesn't allow fine-grained control over
-	 * the receive filter.
-	 */
-	*total_flags &= FIF_ALLMULTI | FIF_BCN_PRBRESP_PROMISC;
+        /* AP firmware doesn't allow fine-grained control over
+         * the receive filter. When mwl_allow_any_mac is set we
+         * try to keep whatever flags mac80211 requests.
+         */
+        if (!mwl_allow_any_mac)
+                *total_flags &= FIF_ALLMULTI | FIF_BCN_PRBRESP_PROMISC;
 }
 
 static int mwl_mac80211_set_key(struct ieee80211_hw *hw,

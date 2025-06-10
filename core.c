@@ -30,6 +30,14 @@
 #define CMD_BUF_SIZE     0x4000
 #define INVALID_WATCHDOG 0xAA
 
+/* Optional override to disable strict MAC address masking. When enabled the
+ * driver attempts to accept frames from addresses outside the default mask.
+ */
+bool mwl_allow_any_mac;
+module_param_named(allow_any_mac, mwl_allow_any_mac, bool, 0644);
+MODULE_PARM_DESC(allow_any_mac,
+                "Attempt to accept frames from MAC addresses not sharing the firmware mask");
+
 static const struct ieee80211_channel mwl_channels_24[] = {
 	{ .band = NL80211_BAND_2GHZ, .center_freq = 2412, .hw_value = 1, },
 	{ .band = NL80211_BAND_2GHZ, .center_freq = 2417, .hw_value = 2, },
@@ -830,26 +838,30 @@ static int mwl_wl_init(struct mwl_priv *priv)
 		hw->wiphy->addresses =
 			kzalloc(addr_num * sizeof(*mac_addr), GFP_KERNEL);
 
-		mac_addr = &hw->wiphy->addresses[0];
-		ether_addr_copy(mac_addr->addr, priv->hw_data.mac_addr);
-		last_nibble = mac_addr->addr[5] & 0x0F;
-		for (addr_num = 0; addr_num < SYSADPT_NUM_OF_AP; addr_num++) {
-			mac_addr = &hw->wiphy->addresses[addr_num + 1];
-			ether_addr_copy(mac_addr->addr, priv->hw_data.mac_addr);
-			if (!strcmp(wiphy_name(hw->wiphy), "phy0")) {
-				last_nibble++;
-				if (last_nibble == 0x10)
-					last_nibble = 0;
-			} else {
-				last_nibble--;
-				if (last_nibble == 0xFF)
-					last_nibble = 0x0F;
-			}
-			mac_addr->addr[5] =
-				(mac_addr->addr[5] & 0xF0) | last_nibble;
-			mac_addr->addr[0] |= 0x2;
-		}
-	}
+               mac_addr = &hw->wiphy->addresses[0];
+               ether_addr_copy(mac_addr->addr, priv->hw_data.mac_addr);
+               last_nibble = mac_addr->addr[5] & 0x0F;
+               for (addr_num = 0; addr_num < SYSADPT_NUM_OF_AP; addr_num++) {
+                       mac_addr = &hw->wiphy->addresses[addr_num + 1];
+                       ether_addr_copy(mac_addr->addr, priv->hw_data.mac_addr);
+                       if (!mwl_allow_any_mac) {
+                               if (!strcmp(wiphy_name(hw->wiphy), "phy0")) {
+                                       last_nibble++;
+                                       if (last_nibble == 0x10)
+                                               last_nibble = 0;
+                               } else {
+                                       last_nibble--;
+                                       if (last_nibble == 0xFF)
+                                               last_nibble = 0x0F;
+                               }
+                               mac_addr->addr[5] =
+                                       (mac_addr->addr[5] & 0xF0) | last_nibble;
+                       } else {
+                               mac_addr->addr[5] += addr_num + 1;
+                       }
+                       mac_addr->addr[0] |= 0x2;
+               }
+       }
 
 	wiphy_info(hw->wiphy,
 		   "firmware version: 0x%x\n", priv->hw_data.fw_release_num);
@@ -987,6 +999,7 @@ struct ieee80211_hw *mwl_alloc_hw(int bus_type,
        priv->tx_amsdu = true;
        priv->mu_mimo_enabled = false;
        priv->pmf_enabled = false;
+       priv->mesh_enabled = false;
        priv->hif.bus = bus_type;
 	priv->hif.ops = ops;
 	priv->hif.priv = (char *)priv + ALIGN(sizeof(*priv), NETDEV_ALIGN);

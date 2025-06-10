@@ -280,6 +280,10 @@ int mwl_fwcmd_get_txpwrlmt_cfg_data(struct ieee80211_hw *hw);
 
 int mwl_fwcmd_mcast_cts(struct ieee80211_hw *hw, u8 enable);
 
+int mwl_fwcmd_set_mu_mimo(struct ieee80211_hw *hw, bool enable);
+int mwl_fwcmd_set_mesh_mode(struct ieee80211_hw *hw, bool enable);
+int mwl_fwcmd_set_pmf(struct ieee80211_hw *hw, bool enable);
+
 void mwl_fwcmd_get_survey(struct ieee80211_hw *hw, int idx);
 
 #endif /* _FWCMD_H_ */

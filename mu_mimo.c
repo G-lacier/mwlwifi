@@ -17,14 +17,18 @@
 
 #include "sysadpt.h"
 #include "core.h"
+#include "hif/fwcmd.h"
 #include "mu_mimo.h"
 
 void mwl_mu_mimo_enable(struct ieee80211_hw *hw)
 {
     struct mwl_priv *priv = hw->priv;
 
-    priv->mu_mimo_enabled = true;
-    wiphy_info(hw->wiphy, "MU-MIMO enabled (stub)\n");
+    if (mwl_fwcmd_set_mu_mimo(hw, true))
+        wiphy_err(hw->wiphy, "failed to enable MU-MIMO\n");
+    else
+        priv->mu_mimo_enabled = true;
+    wiphy_info(hw->wiphy, "MU-MIMO enabled\n");
 }
 EXPORT_SYMBOL_GPL(mwl_mu_mimo_enable);
 
@@ -32,8 +36,11 @@ void mwl_mu_mimo_disable(struct ieee80211_hw *hw)
 {
     struct mwl_priv *priv = hw->priv;
 
-    priv->mu_mimo_enabled = false;
-    wiphy_info(hw->wiphy, "MU-MIMO disabled (stub)\n");
+    if (mwl_fwcmd_set_mu_mimo(hw, false))
+        wiphy_err(hw->wiphy, "failed to disable MU-MIMO\n");
+    else
+        priv->mu_mimo_enabled = false;
+    wiphy_info(hw->wiphy, "MU-MIMO disabled\n");
 }
 EXPORT_SYMBOL_GPL(mwl_mu_mimo_disable);
 
