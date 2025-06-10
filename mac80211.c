@@ -20,6 +20,7 @@
 #include "sysadpt.h"
 #include "core.h"
 #include "utils.h"
+#include "pmf.h"
 #include "hif/fwcmd.h"
 #include "hif/hif-ops.h"
 
@@ -522,11 +523,15 @@ static int mwl_mac80211_set_key(struct ieee80211_hw *hw,
 				if (vif->type != NL80211_IFTYPE_STATION)
 					mwl_vif->keyidx = key->keyidx;
 			}
-		} else if (key->cipher == WLAN_CIPHER_SUITE_TKIP) {
-			encr_type = ENCR_TYPE_TKIP;
-		} else {
-			encr_type = ENCR_TYPE_DISABLE;
-		}
+               } else if (key->cipher == WLAN_CIPHER_SUITE_TKIP) {
+                       encr_type = ENCR_TYPE_TKIP;
+               } else if (key->cipher == WLAN_CIPHER_SUITE_AES_CMAC) {
+                       mwl_pmf_enable(hw, true);
+                       rc = -EOPNOTSUPP;
+                       goto out;
+               } else {
+                       encr_type = ENCR_TYPE_DISABLE;
+               }
 
 		rc = mwl_fwcmd_update_encryption_enable(hw, vif, addr,
 							encr_type);
@@ -541,11 +546,13 @@ static int mwl_mac80211_set_key(struct ieee80211_hw *hw,
 			sta_info = mwl_dev_get_sta(sta);
 			sta_info->is_key_set = true;
 		}
-	} else {
-		rc = mwl_fwcmd_encryption_remove_key(hw, vif, addr, key);
-		if (rc)
-			goto out;
-	}
+       } else {
+               if (key->cipher == WLAN_CIPHER_SUITE_AES_CMAC)
+                       mwl_pmf_enable(hw, false);
+               rc = mwl_fwcmd_encryption_remove_key(hw, vif, addr, key);
+               if (rc)
+                       goto out;
+       }
 
 out:
 
