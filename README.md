@@ -127,7 +127,7 @@ Due to package version being the same as previous one, you need to add option `-
 
 ## Monitor interface for debug
 
-1. Create moinitor interface mon0:
+1. Create monitor interface mon0:
     ```sh
     iw wlan0/wlan1 interface add mon0 type monitor
     ifconfig mon0 up

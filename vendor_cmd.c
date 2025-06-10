@@ -13,7 +13,7 @@
  * this warranty disclaimer.
  */
 
-/* Description:  This file implements vendor spcific functions. */
+/* Description:  This file implements vendor specific functions. */
 
 #include <net/mac80211.h>
 #include <net/netlink.h>
