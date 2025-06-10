@@ -18,6 +18,10 @@
 #ifndef _MU_MIMO_H_
 #define _MU_MIMO_H_
 
+#include <net/mac80211.h>
 
+void mwl_mu_mimo_enable(struct ieee80211_hw *hw);
+void mwl_mu_mimo_disable(struct ieee80211_hw *hw);
+bool mwl_mu_mimo_is_enabled(struct ieee80211_hw *hw);
 
 #endif /* _MU_MIMO_H_ */

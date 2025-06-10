@@ -47,6 +47,8 @@ mac80211 driver for the Marvell 88W8x64 802.11ac chip
 
 * WiFi device does not use HT rates when using TKIP as the encryption cipher. If you want to have good performance, please use AES only.
 
+* Experimental stubs for MU-MIMO, 802.11s mesh, and 802.11w PMF are provided but do not enable full functionality.
+
 * DTS parameters for mwlwifi driver (pcie@X,0):
     ```sh
     #Disable 2g band
@@ -125,7 +127,7 @@ Due to package version being the same as previous one, you need to add option `-
 
 ## Monitor interface for debug
 
-1. Create moinitor interface mon0:
+1. Create monitor interface mon0:
     ```sh
     iw wlan0/wlan1 interface add mon0 type monitor
     ifconfig mon0 up
