@@ -26,12 +26,12 @@
 	1. Change configuration file hostapd.conf
 	2. Run "killall hostapd" then "hostapd -B ./hostapd.conf" to run hostapd with new configuration.
 	
-4. The way to change channel via hostpad.conf for 80 MHz:
+4. The way to change channel via hostapd.conf for 80 MHz:
 
 	a. You must check regulatory domain first to see if the channel you setting is allowable for 80 MHz.
-		You can use ¡§iw reg get¡¨ and ¡§iw reg set¡¨ to get and set regulatory domain. For script file ¡§setup.sh¡¨,
+		You can use Â¡Â§iw reg getÂ¡Â¨ and Â¡Â§iw reg setÂ¡Â¨ to get and set regulatory domain. For script file Â¡Â§setup.shÂ¡Â¨,
 		it sets the regulatory domain to US.
-		If you use ¡§iw reg get¡¨ to check setting regulatory domain:
+		If you use Â¡Â§iw reg getÂ¡Â¨ to check setting regulatory domain:
 				country US: DFS-UNSET
 					(2402 - 2472 @ 40), (30, 0)
 					(5170 - 5250 @ 80), (17, 0)
@@ -39,7 +39,7 @@
 					(5735 - 5835 @ 80), (30, 0)
 					(57240 - 63720 @ 2160), (40, 0)
 		It allows you to use three ranges to do 80 MHz operation (36 ~ 48), (52 ~ 64) and (149 ~ 161).
-		If you use ¡§iw reg set TW¡¨ to set regulatory domain to TW:
+		If you use Â¡Â§iw reg set TWÂ¡Â¨ to set regulatory domain to TW:
 				country TW: DFS-UNSET
 					(2402 - 2472 @ 40), (30, 0)
 					(5270 - 5330 @ 40), (17, 0)
@@ -67,7 +67,7 @@
 				vht_oper_centr_freq_seg0_idx=155
 
 			b. 100 to 112:
-				Use ¡§iw reg set TW¡¨ to change regulatory domain to allow to use this range for 80 Mhz.
+				Use Â¡Â§iw reg set TWÂ¡Â¨ to change regulatory domain to allow to use this range for 80 Mhz.
 				channel=100
 				ht_capab=[LDPC][HT40+][SHORT-GI-20][SHORT-GI-40]
 				vht_oper_centr_freq_seg0_idx=106

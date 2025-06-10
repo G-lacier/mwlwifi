@@ -1,3 +1,4 @@
+#!/bin/sh
 iw reg set US
 insmod mwlwifi.ko
 hostapd -B ./hostapd.conf
