@@ -22,6 +22,8 @@
 #include "vendor_cmd.h"
 #include "thermal.h"
 #include "debugfs.h"
+#include "mu_mimo.h"
+#include "pmf.h"
 #include "hif/fwcmd.h"
 #include "hif/hif-ops.h"
 
@@ -982,8 +984,10 @@ struct ieee80211_hw *mwl_alloc_hw(int bus_type,
 	priv->use_short_preamble = false;
 	priv->disable_2g = false;
 	priv->disable_5g = false;
-	priv->tx_amsdu = true;
-	priv->hif.bus = bus_type;
+       priv->tx_amsdu = true;
+       priv->mu_mimo_enabled = false;
+       priv->pmf_enabled = false;
+       priv->hif.bus = bus_type;
 	priv->hif.ops = ops;
 	priv->hif.priv = (char *)priv + ALIGN(sizeof(*priv), NETDEV_ALIGN);
 	priv->ampdu_num = mwl_hif_get_ampdu_num(hw);
@@ -1066,8 +1070,11 @@ int mwl_init_hw(struct ieee80211_hw *hw, const char *fw_name,
 		rx_num = 2;
 	else if (priv->antenna_rx == ANTENNA_RX_3)
 		rx_num = 3;
-	wiphy_info(priv->hw->wiphy, "%d TX antennas, %d RX antennas\n",
-		   tx_num, rx_num);
+       wiphy_info(priv->hw->wiphy, "%d TX antennas, %d RX antennas\n",
+                  tx_num, rx_num);
+
+       mwl_mu_mimo_enable(hw);
+       mwl_pmf_enable(hw, false);
 
 #ifdef CONFIG_DEBUG_FS
 	mwl_debugfs_init(hw);
