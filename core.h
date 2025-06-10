@@ -331,9 +331,10 @@ struct mwl_priv {
 	u16 dfs_min_num_radar;
 	u16 dfs_min_pri_count;
 
-	u8 bf_type;
-	bool mu_mimo_enabled;
-	bool pmf_enabled;
+       u8 bf_type;
+       bool mu_mimo_enabled;
+       bool pmf_enabled;
+       bool mesh_enabled;
 
 	struct thermal_cooling_device *cdev;
 	u32 throttle_state;

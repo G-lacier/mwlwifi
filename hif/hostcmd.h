@@ -81,6 +81,9 @@
 #define HOSTCMD_CMD_GET_FW_CORE_DUMP            0x1203
 #define HOSTCMD_CMD_EDMAC_CTRL                  0x1204
 #define HOSTCMD_CMD_TXPWRLMT_CFG                0x1211
+#define HOSTCMD_CMD_SET_MU_MIMO                 0x1212
+#define HOSTCMD_CMD_SET_MESH_MODE               0x1213
+#define HOSTCMD_CMD_SET_PMF                     0x1214
 #define HOSTCMD_CMD_MCAST_CTS                   0x4001
 
 /* Define general result code for each command */
@@ -1274,6 +1277,24 @@ struct mwl_txpwrlmt_cfg_entry_hdr {
 	__le16 len;
 	/* number of entries */
 	__le16 num_entries;
+} __packed;
+
+/* HOSTCMD_CMD_SET_MU_MIMO */
+struct hostcmd_cmd_set_mu_mimo {
+       struct hostcmd_header cmd_hdr;
+       __le32 enable; /* 1: enable */
+} __packed;
+
+/* HOSTCMD_CMD_SET_MESH_MODE */
+struct hostcmd_cmd_set_mesh_mode {
+       struct hostcmd_header cmd_hdr;
+       __le32 enable;
+} __packed;
+
+/* HOSTCMD_CMD_SET_PMF */
+struct hostcmd_cmd_set_pmf {
+       struct hostcmd_header cmd_hdr;
+       __le32 enable;
 } __packed;
 
 /* HOSTCMD_CMD_MCAST_CTS */

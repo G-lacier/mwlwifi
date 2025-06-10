@@ -3848,5 +3848,77 @@ void mwl_fwcmd_get_survey(struct ieee80211_hw *hw, int idx)
 
 	memcpy(&survey_info->channel, conf->chandef.chan,
 	       sizeof(struct ieee80211_channel));
-	mwl_hif_get_survey(hw, survey_info);
+       mwl_hif_get_survey(hw, survey_info);
+}
+
+int mwl_fwcmd_set_mu_mimo(struct ieee80211_hw *hw, bool enable)
+{
+       struct mwl_priv *priv = hw->priv;
+       struct hostcmd_cmd_set_mu_mimo *pcmd;
+
+       pcmd = (struct hostcmd_cmd_set_mu_mimo *)&priv->pcmd_buf[0];
+
+       mutex_lock(&priv->fwcmd_mutex);
+
+       memset(pcmd, 0x00, sizeof(*pcmd));
+       pcmd->cmd_hdr.cmd = cpu_to_le16(HOSTCMD_CMD_SET_MU_MIMO);
+       pcmd->cmd_hdr.len = cpu_to_le16(sizeof(*pcmd));
+       pcmd->enable = cpu_to_le32(enable ? 1 : 0);
+
+       if (mwl_hif_exec_cmd(hw, HOSTCMD_CMD_SET_MU_MIMO)) {
+               mutex_unlock(&priv->fwcmd_mutex);
+               return -EIO;
+       }
+
+       mutex_unlock(&priv->fwcmd_mutex);
+
+       return 0;
+}
+
+int mwl_fwcmd_set_mesh_mode(struct ieee80211_hw *hw, bool enable)
+{
+       struct mwl_priv *priv = hw->priv;
+       struct hostcmd_cmd_set_mesh_mode *pcmd;
+
+       pcmd = (struct hostcmd_cmd_set_mesh_mode *)&priv->pcmd_buf[0];
+
+       mutex_lock(&priv->fwcmd_mutex);
+
+       memset(pcmd, 0x00, sizeof(*pcmd));
+       pcmd->cmd_hdr.cmd = cpu_to_le16(HOSTCMD_CMD_SET_MESH_MODE);
+       pcmd->cmd_hdr.len = cpu_to_le16(sizeof(*pcmd));
+       pcmd->enable = cpu_to_le32(enable ? 1 : 0);
+
+       if (mwl_hif_exec_cmd(hw, HOSTCMD_CMD_SET_MESH_MODE)) {
+               mutex_unlock(&priv->fwcmd_mutex);
+               return -EIO;
+       }
+
+       mutex_unlock(&priv->fwcmd_mutex);
+
+       return 0;
+}
+
+int mwl_fwcmd_set_pmf(struct ieee80211_hw *hw, bool enable)
+{
+       struct mwl_priv *priv = hw->priv;
+       struct hostcmd_cmd_set_pmf *pcmd;
+
+       pcmd = (struct hostcmd_cmd_set_pmf *)&priv->pcmd_buf[0];
+
+       mutex_lock(&priv->fwcmd_mutex);
+
+       memset(pcmd, 0x00, sizeof(*pcmd));
+       pcmd->cmd_hdr.cmd = cpu_to_le16(HOSTCMD_CMD_SET_PMF);
+       pcmd->cmd_hdr.len = cpu_to_le16(sizeof(*pcmd));
+       pcmd->enable = cpu_to_le32(enable ? 1 : 0);
+
+       if (mwl_hif_exec_cmd(hw, HOSTCMD_CMD_SET_PMF)) {
+               mutex_unlock(&priv->fwcmd_mutex);
+               return -EIO;
+       }
+
+       mutex_unlock(&priv->fwcmd_mutex);
+
+       return 0;
 }

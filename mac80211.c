@@ -21,6 +21,7 @@
 #include "core.h"
 #include "utils.h"
 #include "pmf.h"
+#include "mesh.h"
 #include "hif/fwcmd.h"
 #include "hif/hif-ops.h"
 
@@ -232,10 +233,11 @@ static int mwl_mac80211_add_interface(struct ieee80211_hw *hw,
 			mwl_fwcmd_bss_start(hw, vif, false);
 		}
 		break;
-	case NL80211_IFTYPE_MESH_POINT:
-		ether_addr_copy(mwl_vif->bssid, vif->addr);
-		mwl_fwcmd_set_new_stn_add_self(hw, vif);
-		break;
+       case NL80211_IFTYPE_MESH_POINT:
+               ether_addr_copy(mwl_vif->bssid, vif->addr);
+               mwl_fwcmd_set_new_stn_add_self(hw, vif);
+               mwl_mesh_enable(hw);
+               break;
 	case NL80211_IFTYPE_STATION:
 		ether_addr_copy(mwl_vif->sta_mac, vif->addr);
 		mwl_fwcmd_bss_start(hw, vif, true);
@@ -276,10 +278,12 @@ static void mwl_mac80211_remove_interface(struct ieee80211_hw *hw,
 	struct mwl_priv *priv = hw->priv;
 
 	switch (vif->type) {
-	case NL80211_IFTYPE_AP:
-	case NL80211_IFTYPE_MESH_POINT:
-		mwl_fwcmd_set_new_stn_del(hw, vif, vif->addr);
-		break;
+       case NL80211_IFTYPE_AP:
+       case NL80211_IFTYPE_MESH_POINT:
+               mwl_fwcmd_set_new_stn_del(hw, vif, vif->addr);
+               if (vif->type == NL80211_IFTYPE_MESH_POINT)
+                       mwl_mesh_disable(hw);
+               break;
 	case NL80211_IFTYPE_STATION:
 		mwl_fwcmd_remove_mac_addr(hw, vif, vif->addr);
 		break;
