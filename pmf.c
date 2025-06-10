@@ -3,14 +3,18 @@
  */
 
 #include "core.h"
+#include "hif/fwcmd.h"
 #include "pmf.h"
 
 void mwl_pmf_enable(struct ieee80211_hw *hw, bool enable)
 {
     struct mwl_priv *priv = hw->priv;
 
-    priv->pmf_enabled = enable;
-    wiphy_info(hw->wiphy, "802.11w PMF %sabled (stub)\n", enable ? "en" : "dis");
+    if (mwl_fwcmd_set_pmf(hw, enable))
+        wiphy_err(hw->wiphy, "failed to set PMF state\n");
+    else
+        priv->pmf_enabled = enable;
+    wiphy_info(hw->wiphy, "802.11w PMF %sabled\n", enable ? "en" : "dis");
 }
 EXPORT_SYMBOL_GPL(mwl_pmf_enable);
 

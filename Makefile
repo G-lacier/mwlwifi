@@ -2,6 +2,7 @@ obj-m += mwlwifi.o
 
 mwlwifi-objs			+= core.o
 mwlwifi-objs			+= mac80211.o
+mwlwifi-objs                    += mesh.o
 mwlwifi-objs			+= mu_mimo.o
 mwlwifi-objs                    += pmf.o
 mwlwifi-objs			+= vendor_cmd.o
